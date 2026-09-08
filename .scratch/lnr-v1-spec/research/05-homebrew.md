@@ -159,7 +159,6 @@ homebrew_casks:
     directory: Casks
     homepage: "https://github.com/taciogt/lnr"
     description: "Linear CLI for agent-driven workflows"
-    conflicts: []
 
     repository:
       owner: taciogt
@@ -167,10 +166,6 @@ homebrew_casks:
       branch: main
       # Default GITHUB_TOKEN cannot push to another repo — see §5.
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-
-    # Helps `brew audit` pass when homepage domain != download domain.
-    url:
-      verified: github.com/taciogt/lnr
 
     commit_author:
       name: goreleaserbot
@@ -186,12 +181,28 @@ homebrew_casks:
           end
 ```
 
+**Validated.** This config passes `goreleaser check` against **GoReleaser v2.18.1**:
+
+```
+$ go run github.com/goreleaser/goreleaser/v2@latest check -f .goreleaser.yaml
+  • 1 configuration file(s) validated
+  • thanks for using GoReleaser!
+```
+
 Notes on specific keys:
 
 - `binaries:` — executable names inside the archive; defaults to the cask name.
 - `directory: Casks` — where in the tap repo the `.rb` lands. `Casks` is the default and the
   convention Homebrew expects.
-- `url.verified` — silences a `brew audit` warning; harmless to include.
+- ⚠️ **Do not add `url.verified`.** Nearly every current tutorial and even GoReleaser's own
+  `brews`→`homebrew_casks` migration example still shows it, but it is **deprecated as of
+  GoReleaser v2.18.1** — Homebrew removed it ([Homebrew/brew#23280](https://github.com/Homebrew/brew/pull/23280))
+  and now applies default URL verification. `goreleaser check` fails the whole config on it.
+  Caught by actually running `check`; the fix is to drop the `url:` block entirely.
+  ([deprecations](https://goreleaser.com/deprecations#homebrew_casksurlverified))
+- `#{staged_path}/lnr` in the hook assumes the binary sits at the **archive root**. That holds
+  because `archives` does not set `wrap_in_directory`. If a future edit adds it, the hook path must
+  change to match or quarantine stripping silently no-ops.
 - `skip_upload: auto` is worth considering if you want prereleases (`v1.0.0-rc1`) to build
   artifacts without republishing the cask.
 - `generate_completions_from_executable:` (GoReleaser **v2.15+**) can emit shell completions by
@@ -306,9 +317,10 @@ Three details, all verified:
   `Homebrew::Trust.trust_fully_qualified_items!(args.named, …)`.
   `HOMEBREW_REQUIRE_TAP_TRUST=1` is now deprecated because it only requests the default.
 
-  ⚠️ Ergonomic consequence: the **fully-qualified** form is required. Telling users
-  `brew tap taciogt/tap && brew install lnr` would hit the trust gate on Homebrew ≥ 6.0. Document
-  the one-liner form only.
+  ⚠️ Ergonomic consequence — *inferred, not observed*: since only fully-qualified names auto-trust,
+  the two-step form `brew tap taciogt/tap && brew install lnr` should hit the trust gate on
+  Homebrew ≥ 6.0 and require a `brew trust` call first. I did not reproduce this (it needs a real
+  published tap). The recommendation holds either way: **document the one-liner form only.**
 
 Real costs of a tap, such as they are: no bottles (users download your release archive rather than
 a Homebrew-built bottle — irrelevant for a static Go binary), no `brew search` discoverability, and
@@ -387,6 +399,10 @@ rc=0
   ([docs](https://goreleaser.com/customization/homebrew_casks/))
 - **Cask with the hook:** clean. Binary runs on first invocation, no prompt, no dialog, no
   right-click-Open dance. Indistinguishable from a formula install.
+
+(Experiment honesty note: the synthetic quarantine value used above was `0081;…;Safari;` while real
+Homebrew wrote `03c1;…`. The flag bits differ, but both are quarantine records and both hit the same
+Gatekeeper gate; the strip-and-rerun result is unaffected.)
 
 Note that the Go toolchain already ad-hoc/linker-signs darwin binaries (`Signature=adhoc`,
 `TeamIdentifier=not set`). Ad-hoc signing satisfies arm64's "must have *some* signature" execution
@@ -553,6 +569,8 @@ Every claim above that could rot, with the version it was established against:
 | `hooks` support templates | GoReleaser **v2.13** |
 | `generate_completions_from_executable` | GoReleaser **v2.15** |
 | Real generated cask sampled | GoReleaser **v2.18.1** |
+| `homebrew_casks.url.verified` deprecated (drop it) | GoReleaser **v2.18.1** |
+| §1.3 config validated with `goreleaser check` | GoReleaser **v2.18.1** |
 | GoReleaser Action | **v7**, `version: "~> v2"` |
 | `actions/checkout`, `actions/setup-go` | **v7** |
 | Notability 30/30/75, self-submission 90/90/225, 30-day age | `Package-Acceptance-Policy.md`, `last_review_date: 2026-07-18` |
@@ -579,6 +597,8 @@ Every claim above that could rot, with the version it was established against:
 - https://github.com/goreleaser/goreleaser/blob/main/www/content/blog/goreleaser-v2.16.md
 - https://goreleaser.com/customization/ci/actions/
 - https://goreleaser.com/customization/builds/universalbinaries/
+- https://goreleaser.com/deprecations#homebrew_casksurlverified
+- https://github.com/Homebrew/brew/pull/23280 (Homebrew removing cask `verified`)
 - https://github.com/goreleaser/homebrew-tap/blob/master/Casks/goreleaser.rb
 - https://docs.brew.sh/Package-Acceptance-Policy
 - https://docs.brew.sh/Acceptable-Formulae
