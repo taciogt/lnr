@@ -1,3 +1,5 @@
 lnr
 dist/
 .claude/worktrees/
+.idea/
+.DS_Store
