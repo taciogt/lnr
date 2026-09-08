@@ -92,8 +92,9 @@ truth for its own documentation, so the two cannot drift.
 not-found / auth-required / rate-limited. Pipe it, script it, branch on it — none of which an MCP
 tool call permits.
 
-**One static binary.** Go, distributed via Homebrew. No Node startup penalty on an invocation an
-agent may make dozens of times per session.
+**One static binary.** Go, distributed via a Homebrew tap — `brew install taciogt/tap/lnr`, one
+command, no tap step. No Node startup penalty on an invocation an agent may make dozens of times
+per session.
 
 ## Design decisions settled so far
 
@@ -107,6 +108,7 @@ Each links to the ticket holding the full reasoning.
 | Output | Lean by default; `--verbose`; `--json`. Never echo input on writes. |
 | Multi-workspace | Out of scope — one account per machine. Storage is keyed by workspace ID for forward compatibility. |
 | Credential storage | macOS Keychain, with a documented file fallback for CI and headless use. |
+| [Distribution](https://github.com/taciogt/lnr/issues/6) | Personal Homebrew tap via GoReleaser `homebrew_casks` + an `xattr` post-install hook. No signing, notarization, or Apple Developer fee. homebrew-core is not eligible. |
 
 ### Two findings that overturned an assumption
 
@@ -116,6 +118,11 @@ Research is only useful when it is allowed to contradict the plan. Twice it did:
   It is not. `mcp.linear.app` and `api.linear.app` keep *separate client registries* — a client
   registered with the former is rejected outright by the latter. Proven with paired probes, not
   inferred.
+- **Homebrew formulas are the wrong target, and the correction is not cosmetic.** GoReleaser's
+  `brews:` is fully deprecated; prebuilt binaries ship as a *cask*. Formula installs are never
+  quarantined, but **cask installs are** — and an unsigned quarantined binary is SIGKILLed on
+  first run (exit 137, `zsh: killed`, no dialog, no useful error). Measured, not recalled. The
+  one-line `xattr` post-install hook fixes it. Most tutorials on this topic are stale.
 - **"Generated clients are too big" was the obvious argument for hand-writing. It is false.**
   Running `genqlient` against the real milestone-1 operations produced **1,786 lines**, not the
   feared 50,000 — codegen emits only what the operations reach. Size does not discriminate here.
@@ -166,7 +173,3 @@ gh api repos/taciogt/lnr/issues \
 `gh` for the auth flow and the `gh api` escape hatch, `kubectl` and `docker` for noun-verb
 grammar, and Linear's own [GraphQL API](https://linear.app/developers/graphql) — which is public,
 introspectable without a token, and 94% documented at the schema level.
-
-## License
-
-MIT (intended; not yet added).
