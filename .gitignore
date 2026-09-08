@@ -1,3 +1,4 @@
 .scratch/**/research/
 lnr
 dist/
+.claude/worktrees/
