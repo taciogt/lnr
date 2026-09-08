@@ -110,7 +110,7 @@ single `resource` (`https://mcp.linear.app/mcp`), which is RFC 8707 resource-ind
 scoping and points at the token being rejected elsewhere. But that is inference, not observation,
 and it is cheap to settle — see "How to close the last gap".
 
-### 2b. A hard-coded public client on the *first-party* OAuth server — supported by docs, one probe short of proof
+### 2b. A hard-coded public client on the *first-party* OAuth server — **confirmed live in #10**
 
 `https://linear.app/developers/oauth-2-0-authentication` documents a PKCE flow whose token
 request parameters are:
@@ -143,10 +143,11 @@ $ curl -s -X POST https://api.linear.app/oauth/token \
 {"error":"invalid_client","error_description":"Invalid client: client is invalid"}
 ```
 
-That is weak evidence: the server never got far enough to check a secret. **The positive half of
-2b rests on one word ("Optional") in Linear's docs, not on an observed token.** It should be
-confirmed with a real `client_id` before the auth design is locked (recipe at the bottom — five
-minutes of manual work).
+That was weak evidence on its own: the server never got far enough to check a secret. **#10 closed
+the gap with a real `client_id`** (`1ef6a5d2c62d8863c302b917e0ab8c3f`): a secretless PKCE exchange
+at `api.linear.app/oauth/token` returned a working `access_token`, and the `viewer` query against
+`/graphql` with that token returned real account data. The positive half of 2b is now observed,
+not inferred.
 
 ## Sub-question 3 — Is creating an OAuth app gated on workspace admin?
 
@@ -257,6 +258,8 @@ last-writer-wins around the stored refresh token.
 
 ## How to close the last gap (5 minutes, needs a human in a browser)
 
+**Done — see #10.** Recipe kept below for reference (e.g. for #12's cross-workspace re-run).
+
 I deliberately did not create an OAuth app in the user's workspace. To turn 2b from
 "documented" into "observed":
 
@@ -286,21 +289,27 @@ deleted; it is an unauthorized, credential-less client id and holds no access to
 
 ## What I could not establish
 
-- Whether `linear.app/settings/api/applications/new` actually accepts a `http://localhost:PORT`
-  redirect URI (strongly implied by Linear's own examples; not observed).
-- Whether an `api.linear.app`-issued PKCE token with no client secret really works at
-  `/graphql` (documented as possible; not observed).
-- **Whether an access token issued by `mcp.linear.app/token` to a DCR-registered public client is
-  accepted at `api.linear.app/graphql`.** Expected no (its protected-resource metadata scopes it
-  to `https://mcp.linear.app/mcp`), but not observed. If it *is* accepted, the hard-coded
-  `client_id` requirement — and the app-creation admin gate with it — disappears entirely, so
-  this is the highest-value unknown in this document.
-- Whether a plain Member (non-admin) can create an OAuth application.
+- ~~Whether `linear.app/settings/api/applications/new` actually accepts a `http://localhost:PORT`
+  redirect URI~~ **Resolved in #10: yes, accepted unchanged.**
+- ~~Whether an `api.linear.app`-issued PKCE token with no client secret really works at
+  `/graphql`~~ **Resolved in #10: yes — secretless exchange returns a working token.**
+- ~~**Whether an access token issued by `mcp.linear.app/token` to a DCR-registered public client is
+  accepted at `api.linear.app/graphql`.**~~ **Resolved in #10: no — rejected with a 401
+  `AUTHENTICATION_ERROR`.** The separate-registries claim above was inference from documentation;
+  it is now an observed fact.
+- Whether a plain Member (non-admin) can create an OAuth application. *(Still open — #10's app was
+  created by a workspace admin.)*
 - Whether Third-Party App Approvals is on or off by default, and whether it applies to
-  `distribution=private` apps.
-- Refresh token absolute lifetime.
-- Whether personal API keys expire.
-- Whether marking an app `distribution=public` requires any Linear-side review.
+  `distribution=private` apps. *(Still open — #10 found no such setting on the app's own edit page;
+  it may live elsewhere in workspace/org settings and wasn't located.)*
+- Refresh token absolute lifetime. *(Still open — #10 observed `expires_in: 86399` on the access
+  token, ~24h as expected, but did not test refresh-token expiry.)*
+- Whether personal API keys expire. *(Still open — out of scope for #10.)*
+- ~~Whether marking an app `distribution=public` requires any Linear-side review.~~ **Resolved in
+  #10: no — Availability shows "public available" immediately, no pending-review state.**
+- **New, from #10:** whether the same shipped `client_id` authorizes unmodified against a
+  *different* Linear workspace — the actual precondition for shipping one non-secret `client_id`
+  to every `lnr` user. Open in #12.
 
 ## Method note
 
