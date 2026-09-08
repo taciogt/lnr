@@ -17,7 +17,7 @@ To decide:
 2. How it avoids false positives against the other 48 skills already in the user's listing —
    several of which (`mattpocock-skills:wayfinder`, `code-review`) also talk about issues and
    tickets.
-3. Whether it should trigger on Linear *URLs* and identifier patterns (`HF-84`) appearing in the
+3. Whether it should trigger on Linear *URLs* and identifier patterns (`ENG-42`) appearing in the
    conversation, not just on intent words.
 4. Whether to validate the description with `skill-creator`'s eval tooling, which the user already
    has installed, rather than guessing at trigger accuracy.

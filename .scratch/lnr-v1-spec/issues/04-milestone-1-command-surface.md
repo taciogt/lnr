@@ -26,10 +26,10 @@ To decide:
    both create and update — does `lnr` split it into `issue create` / `issue update`, or keep a
    single upsert?
 2. Required vs. optional flags per command, and which have sensible defaults (team, status).
-3. How issues are addressed: identifier (`HF-84`), UUID, or URL — and whether all three are
+3. How issues are addressed: identifier (`ENG-42`), UUID, or URL — and whether all three are
    accepted everywhere.
 4. Whether reads that the MCP splits (`get_issue` + `list_comments`) collapse into one command
-   with a flag (`lnr issue get HF-84 --with-comments`), saving a round-trip.
+   with a flag (`lnr issue get ENG-42 --with-comments`), saving a round-trip.
 5. Where the milestone-1 line falls: what is deliberately *excluded* and left to `lnr api`.
 
 Consider that usage was **shaped by the MCP** — the user may not have used cycles or documents
