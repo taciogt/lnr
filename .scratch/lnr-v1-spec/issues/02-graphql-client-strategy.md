@@ -1,7 +1,7 @@
 # Hand-written GraphQL client, or generated from introspection?
 
 Type: research
-Status: open
+Status: claimed (research subagent, in progress)
 
 ## Question
 

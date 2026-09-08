@@ -1,7 +1,7 @@
 # Can a Homebrew-shipped `lnr` do a `gh auth login` browser flow?
 
 Type: research
-Status: open
+Status: claimed (research subagent, in progress)
 
 ## Question
 

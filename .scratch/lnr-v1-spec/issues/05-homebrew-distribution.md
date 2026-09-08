@@ -1,7 +1,7 @@
 # How does `lnr` reach a Mac?
 
 Type: research
-Status: open
+Status: claimed (research subagent, in progress)
 
 ## Question
 
