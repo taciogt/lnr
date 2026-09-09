@@ -57,7 +57,7 @@ Do not relitigate these without a reason; each links to the ticket holding its r
 | | |
 |---|---|
 | Language / name | Go; binary `lnr`; noun-verb grammar (`lnr issue create`) |
-| Surface | ~8 commands + a raw `lnr api '<graphql>'` passthrough, in the shape of `gh api` |
+| Surface | 22 noun-verb commands (full `create`/`update`/`get`/`list` CRUD on `issue`/`project`/`milestone`/`comment`/`label`, read-only `team list`/`status list`) + a raw `lnr api '<graphql>'` passthrough ([#5](https://github.com/taciogt/lnr/issues/5)) |
 | Output | Lean by default, `--verbose`, `--json`. **Never echo input back on writes.** |
 | API client | Hand-written, *not* generated ([#3](https://github.com/taciogt/lnr/issues/3)) |
 | Auth | OAuth authorization-code + PKCE (S256), loopback redirect, shipped non-secret `client_id`; `LINEAR_API_KEY` fallback ([#2](https://github.com/taciogt/lnr/issues/2)) |

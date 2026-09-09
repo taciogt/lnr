@@ -255,14 +255,17 @@ hand-written.
 Stated explicitly per instructions; none could be established without a workspace token, which
 this session did not have (ticket 01, OAuth, is still open).
 
-- **Does `issue(id:)` accept the human identifier (`BLA-123`) or only a UUID?** The schema types
-  the argument `String!`, and Linear's own published example passes `"BLA-123"`
-  (<https://linear.app/developers/graphql>) — but this is undocumented coercion behavior and
-  untested here. **Unknown.** This is exactly the field-level semantics a hand-written client must
-  pin down empirically; codegen would not have answered it either (the generated type is
-  `string` in both readings).
+- ~~**Does `issue(id:)` accept the human identifier (`BLA-123`) or only a UUID?**~~ **Resolved in
+  [#5](https://github.com/taciogt/lnr/issues/5).** Linear's own docs confirm both `issue(id:)` and
+  `issueUpdate(id:)` accept UUID or shorthand identifier natively — no client-side lookup needed
+  for issues. The same is *not* true of `project`, `projectMilestone`, `issueLabel`, or `comment`:
+  introspection shows those take a bare `id` arg only, with no documented coercion, so `lnr`
+  resolves those by name client-side instead.
 - **Whether `IssueCreateInput.teamId` is hard-required at runtime.** All 36 input fields are
-  nullable in the schema, so the requirement is enforced server-side. **Unknown.**
+  nullable in the schema, so the requirement is enforced server-side. **Resolved in #5**: yes —
+  `issueCreate` requires `title` + `teamId` per Linear's own docs, despite both being schema-nullable.
+  (By contrast, `IssueLabelCreateInput.name` and `ProjectMilestoneCreateInput.{name,projectId}`,
+  and `ProjectCreateInput.{name,teamIds}` are *schema*-required, confirmed by introspection.)
 - **What `lastSyncId` on `IssuePayload`/`CommentPayload` is for**, and whether `lnr` should ever
   surface it. Undocumented in the pages reviewed. **Unknown.**
 - **Actual rate limits** (numbers per hour/complexity) were not read; only the error code shape
