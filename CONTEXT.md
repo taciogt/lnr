@@ -44,6 +44,9 @@ have no Linear-assigned short code the way issues do.
 A checkpoint within a single project. Despite belonging to exactly one project in Linear's own
 schema, `lnr` treats it as a top-level noun rather than a nested one — see
 [ADR-0001](docs/adr/0001-uniform-command-grammar-over-schema-shape.md).
+_Avoid_: Using "milestone" for a release phase of the `lnr` project itself — that's **v1**/**v2+**
+(see the map, [#1](https://github.com/taciogt/lnr/issues/1)). The two used to collide in this
+repo's own prose; the phase sense was renamed away once the entity became a real noun.
 
 **Status**:
 An issue's stage in its team's workflow (e.g. Backlog, In Progress, Done). Scoped per-team: the
