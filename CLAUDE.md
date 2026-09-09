@@ -58,16 +58,17 @@ Do not relitigate these without a reason; each links to the ticket holding its r
 |---|---|
 | Language / name | Go; binary `lnr`; noun-verb grammar (`lnr issue create`) |
 | Surface | 22 noun-verb commands (full `create`/`update`/`get`/`list` CRUD on `issue`/`project`/`milestone`/`comment`/`label`, read-only `team list`/`status list`) + a raw `lnr api '<graphql>'` passthrough ([#5](https://github.com/taciogt/lnr/issues/5)) |
-| Output | Lean by default, `--verbose`, `--json`. **Never echo input back on writes.** |
+| Output | Lean by default, `--verbose`, `--json`. **Never echo input back on writes.** Tiers govern success only — errors are always full |
 | API client | Hand-written, *not* generated ([#3](https://github.com/taciogt/lnr/issues/3)) |
 | Auth | OAuth authorization-code + PKCE (S256), loopback redirect, shipped non-secret `client_id`; `LINEAR_API_KEY` fallback ([#2](https://github.com/taciogt/lnr/issues/2)) |
 | Distribution | Personal Homebrew tap, GoReleaser `homebrew_casks` ([#6](https://github.com/taciogt/lnr/issues/6)) |
-| Credentials | macOS Keychain, keyed by **workspace ID** even though only one is supported |
+| Credentials | macOS Keychain, keyed by **workspace ID** even though only one is supported; reached via `/usr/bin/security`, *not* the native `SecItem*` API ([#7](https://github.com/taciogt/lnr/issues/7)) |
+| Agent contract | 7 behaviour-keyed exit codes; stdout is payload-only and empty on failure; never prompts; no internal retry ([#7](https://github.com/taciogt/lnr/issues/7)) |
 | Out of scope | Multi-workspace/profiles (one account per machine); reimplementing the 53 unused MCP tools; non-macOS distribution |
 
 ## Established facts — read before re-deriving
 
-`.scratch/lnr-v1-spec/research/` holds three researched documents with primary sources, live
+`.scratch/lnr-v1-spec/research/` holds four researched documents with primary sources, live
 probe transcripts, and explicit "what I could not establish" sections. **Read the relevant one
 before investigating Linear's API, OAuth, or Homebrew** — these questions are answered, including
 the traps:
@@ -79,6 +80,12 @@ the traps:
   documented; pagination has a `nodes` shortcut past `edges`/`cursor`; errors carry real HTTP
   statuses plus `extensions.code` and `userPresentableMessage`. An invalid token and *no* token
   return an identical 401.
+- `07-keychain-non-interactive.md` — an unsigned Go binary's ad-hoc `cdhash` rotates on every
+  rebuild, and a Keychain item's `partition_id` ACL is keyed to it, so the **native `SecItem*` API
+  blocks a TTY-less process on a GUI dialog after every `brew upgrade`** (observed 7 times). Worse,
+  the post-upgrade write *succeeds silently* while the read stays broken. Shelling out to
+  `/usr/bin/security` sidesteps it — that path's items are partitioned `apple-tool:`, which is how
+  `gh` survives its own cdhash rotation.
 - `05-homebrew.md` — GoReleaser's `brews:` is fully deprecated; use `homebrew_casks`. **Cask
   installs are quarantined and an unsigned binary is SIGKILLed on first run (exit 137)** without
   the `xattr -dr com.apple.quarantine` post-install hook. Do not add `url.verified` — deprecated,

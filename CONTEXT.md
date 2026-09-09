@@ -17,8 +17,9 @@ The second word of a command (`create`, `update`, `get`, `list`), naming the ope
 shape dictate its own — see [ADR-0001](docs/adr/0001-uniform-command-grammar-over-schema-shape.md).
 
 **Tier**:
-One of the three response shapes every command supports: lean (default), `--verbose`, `--json`.
-Chosen by flag only, never inferred from whether stdout is a TTY — see
+One of the three shapes a **payload** can take: lean (default), `--verbose`, `--json`. Chosen by
+flag only, never inferred from whether stdout is a TTY. Tiers govern *success* output only — a
+failure is rendered in full at every tier — see
 [ADR-0003](docs/adr/0003-output-tiers-are-flag-only-and-json-is-not-raw.md).
 
 **Lean**:
@@ -35,6 +36,31 @@ The one tier meant to be parsed. Renders lean's fields, structured — never a r
 Linear's own API response. See [ADR-0003](docs/adr/0003-output-tiers-are-flag-only-and-json-is-not-raw.md).
 _Avoid_: Describing `--json` as "full" or "raw" output — pair with `--verbose` for that instead.
 
+**Caller**:
+Whoever invoked `lnr` — in practice a coding agent shelling out with no TTY attached, and only
+secondarily a human at a terminal. Design questions are settled by what the caller can *do* with an
+answer, not by what would read nicely.
+_Avoid_: User (ambiguous between the caller and the Linear user whose account the token belongs to).
+
+**Payload**:
+A command's result, and the only thing that ever reaches stdout. Everything else — errors,
+warnings, the OAuth URL — goes to stderr, so a failed command leaves stdout **empty** rather than
+partially written.
+
+**Exit code**:
+The contract's machine-readable channel, so a caller never has to parse prose to decide what to do
+next. The seven codes enumerate distinct *caller behaviours*, not distinct failure kinds — which is
+why a malformed flag and a Linear-side validation rejection share one code (both mean "fix the
+input"), while a rate limit and a timeout do not. Derived from `extensions.code`, never from the
+HTTP status: Linear returns rate-limit errors as HTTP 400, not 429.
+
+**Credential**:
+The Linear token `lnr` authenticates with — an OAuth access token, or a `LINEAR_API_KEY` on a
+headless host. Stored in the macOS Keychain, keyed by workspace ID, reached via `/usr/bin/security`
+rather than the native API — see
+[ADR-0004](docs/adr/0004-keychain-access-via-the-security-cli.md). `lnr` owns its whole lifecycle
+including refresh; a caller only learns a credential exists when there isn't a usable one.
+
 **Issue**:
 Linear's core work item. The only noun addressable by a human-readable identifier as well as a
 UUID.
@@ -47,9 +73,11 @@ from a UUID, and distinct from a **reference** below.
 _Avoid_: Slug, ID (too easily confused with UUID).
 
 **Reference**:
-Whatever a user hands `lnr` to point at a specific record — identifier, UUID, name, or a pasted
+Whatever a caller hands `lnr` to point at a specific record — identifier, UUID, name, or a pasted
 Linear URL, depending on what the noun in question supports. Not every noun accepts every form:
-see [ADR-0002](docs/adr/0002-addressing-scheme-follows-api-capability-not-grammar.md).
+see [ADR-0002](docs/adr/0002-addressing-scheme-follows-api-capability-not-grammar.md). A reference
+that matches nothing and one that matches several records are different failures, and `lnr` reports
+them as such — the second is a caller-fixable ambiguity, not an absence.
 
 **Team**:
 The organizational unit that owns issues and workflow states, and that projects can span. Referred

@@ -17,3 +17,18 @@ isn't controlling.
 
 A new command's `--json` output gets the same treatment by default: lean's fields as JSON, not the
 underlying GraphQL response shape.
+
+## Amended in [#7](https://github.com/taciogt/lnr/issues/7): two boundaries this ADR implies but does not state
+
+**A TTY may gate interaction; it may never change output shape.** The ban on TTY-sniffing above is
+about *shape*. It does not forbid `lnr` from noticing there is no terminal in order to refuse to
+prompt — that is the mechanism keeping a non-interactive caller from hanging on a question nobody
+will answer. Without this distinction the two rules read as contradicting each other, and a future
+reader resolving the contradiction in either direction gets something wrong.
+
+**Tiers govern success output. Errors are always full.** Lean's discipline is about not echoing
+back what the caller already knows; on a failure, the caller knows nothing and every field is new
+information. So a failure prints Linear's `message`, `extensions.code`, and `userPresentableMessage`
+at every tier — never truncated, never summarised. The consequence worth stating because it looks
+like a bug otherwise: **`--verbose` adds nothing to a failure.** `--json` still changes the
+*encoding* of an error, and remains the only parseable form of one.
