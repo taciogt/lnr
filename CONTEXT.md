@@ -16,6 +16,25 @@ The second word of a command (`create`, `update`, `get`, `list`), naming the ope
 `lnr` gives every writable noun the same verb set rather than letting each one's Linear mutation
 shape dictate its own — see [ADR-0001](docs/adr/0001-uniform-command-grammar-over-schema-shape.md).
 
+**Tier**:
+One of the three response shapes every command supports: lean (default), `--verbose`, `--json`.
+Chosen by flag only, never inferred from whether stdout is a TTY — see
+[ADR-0003](docs/adr/0003-output-tiers-are-flag-only-and-json-is-not-raw.md).
+
+**Lean**:
+The default tier: only the fields a caller couldn't already know, plus enough of a record's body
+to be useful without its full text. Never echoes back what was just written.
+_Avoid_: Terse, minimal, quiet.
+
+**Verbose**:
+The `--verbose` tier: expands lean with the fields it drops (full body, dates, relations), as
+human/agent-readable text. Not a parsing contract — nothing should script against its exact shape.
+
+**`--json`**:
+The one tier meant to be parsed. Renders lean's fields, structured — never a raw passthrough of
+Linear's own API response. See [ADR-0003](docs/adr/0003-output-tiers-are-flag-only-and-json-is-not-raw.md).
+_Avoid_: Describing `--json` as "full" or "raw" output — pair with `--verbose` for that instead.
+
 **Issue**:
 Linear's core work item. The only noun addressable by a human-readable identifier as well as a
 UUID.
