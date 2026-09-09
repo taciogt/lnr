@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>lnr — lean output prototype</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --panel: #ffffff;
+    --ink: #1c1a17;
+    --sub: #6b6459;
+    --border: #e4ded4;
+    --accent: #a8501f;
+    --accent-soft: #f4e3d7;
+    --good: #2f6f4e;
+    --good-bg: #e6f2ea;
+    --bad: #a3341f;
+    --bad-bg: #fbe9e5;
+    --mono: "SF Mono", "Menlo", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 21px;
+    letter-spacing: -0.01em;
+  }
+  header .question {
+    max-width: 860px;
+    color: var(--sub);
+    font-size: 14px;
+  }
+  header .meta {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--sub);
+  }
+  header a { color: var(--accent); }
+  nav.tabs {
+    display: flex;
+    gap: 4px;
+    padding: 0 32px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  nav.tabs button {
+    border: none;
+    background: transparent;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--sub);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  nav.tabs button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px 32px 80px;
+  }
+  section.pane { display: none; }
+  section.pane.active { display: block; }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    align-items: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+  .controls label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .controls .group { display: flex; align-items: center; gap: 10px; }
+  .controls .divider { width: 1px; height: 18px; background: var(--border); }
+
+  h2.cmd { font-size: 16px; margin: 0 0 4px; }
+  h2.cmd code { background: var(--accent-soft); padding: 1px 7px; border-radius: 5px; color: var(--accent); }
+  p.target { color: var(--sub); font-size: 13px; margin: 0 0 16px; }
+
+  .baseline {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+  .baseline summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sub);
+  }
+  .baseline pre {
+    margin: 12px 0 0;
+    max-height: 220px;
+    overflow: auto;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #fbfaf8;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .card .title {
+    font-weight: 700;
+    font-size: 13.5px;
+    margin-bottom: 2px;
+  }
+  .card .desc {
+    color: var(--sub);
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .card pre {
+    flex: 1;
+    margin: 0 0 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #fbfaf8;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    max-height: 260px;
+    overflow: auto;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+  }
+  .stat-row .stats { color: var(--sub); font-variant-numeric: tabular-nums; }
+  .badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .badge.good { background: var(--good-bg); color: var(--good); }
+  .badge.bad { background: var(--bad-bg); color: var(--bad); }
+
+  .qblock {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .qblock h3 { margin: 0 0 8px; font-size: 14px; }
+  .qblock p { margin: 0 0 8px; font-size: 13.5px; color: var(--ink); }
+  .qblock .note { color: var(--sub); font-size: 12.5px; }
+  .qblock .verdict {
+    margin-top: 10px;
+    font-size: 12.5px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  footer.note {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px 60px;
+    color: var(--sub);
+    font-size: 12px;
+  }
+  code.inline { background: var(--accent-soft); color: var(--accent); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>What exactly does &ldquo;lean&rdquo; contain?</h1>
+  <p class="question">
+    Prototype for <a href="https://github.com/taciogt/lnr/issues/4" target="_blank">lnr#4</a>.
+    The three payloads below are <strong>real captured Linear MCP responses</strong> from this user's own
+    transcripts (<code class="inline">save_issue</code>, <code class="inline">get_issue</code>,
+    <code class="inline">list_issues</code>) &mdash; not invented examples. Every candidate rendering is
+    computed live from that same real data, and every token count updates as you flip the toggles below,
+    so the numbers you see are never hand-typed.
+  </p>
+  <p class="meta">
+    Token counts are the char/4 estimate this repo already uses in <code class="inline">README.md</code>
+    (labelled approximate throughout &mdash; not a real tokenizer).
+  </p>
+</header>
+
+<nav class="tabs">
+  <button data-pane="save_issue" class="active">save_issue</button>
+  <button data-pane="get_issue">get_issue --lean</button>
+  <button data-pane="list_issues">list_issues</button>
+  <button data-pane="questions">Design questions</button>
+</nav>
+
+<main>
+
+  <!-- ============ SAVE_ISSUE ============ -->
+  <section class="pane active" id="pane-save_issue">
+    <h2 class="cmd">Tier comparison &mdash; <code>lnr issue create</code> / <code>lnr issue update</code></h2>
+    <p class="target">Target from the ticket: lean response under <strong>~50 tokens</strong> &mdash; identifier + URL, nothing echoed.</p>
+
+    <div class="controls">
+      <div class="group">
+        <span>--json means:</span>
+        <label><input type="radio" name="si-json-mode" value="lean" checked> lean fields as JSON</label>
+        <label><input type="radio" name="si-json-mode" value="raw"> raw API JSON (current MCP shape)</label>
+      </div>
+      <div class="divider"></div>
+      <label><input type="checkbox" id="si-omit-nulls" checked> omit null/empty fields in --verbose</label>
+    </div>
+
+    <details class="baseline">
+      <summary>Current Linear MCP <code>save_issue</code> response (baseline) &mdash; click to expand</summary>
+      <pre id="si-baseline-pre"></pre>
+      <div class="stat-row" style="margin-top:8px;">
+        <span class="stats" id="si-baseline-stats"></span>
+      </div>
+    </details>
+
+    <div class="grid" id="si-grid"></div>
+  </section>
+
+  <!-- ============ GET_ISSUE ============ -->
+  <section class="pane" id="pane-get_issue">
+    <h2 class="cmd">Tier comparison &mdash; <code>lnr issue get --lean</code></h2>
+    <p class="target">Target from the ticket: lean response under <strong>~250 tokens</strong>. Open design question: is the description body in or out by default?</p>
+
+    <div class="controls">
+      <div class="group">
+        <span>--json means:</span>
+        <label><input type="radio" name="gi-json-mode" value="lean" checked> lean fields as JSON</label>
+        <label><input type="radio" name="gi-json-mode" value="raw"> raw API JSON (current MCP shape)</label>
+      </div>
+      <div class="divider"></div>
+      <label><input type="checkbox" id="gi-omit-nulls" checked> omit null/empty fields</label>
+      <div class="divider"></div>
+      <div class="group">
+        <span>verbose style:</span>
+        <label><input type="radio" name="gi-style" value="kv" checked> stable <code>key: value</code></label>
+        <label><input type="radio" name="gi-style" value="prose"> human prose</label>
+      </div>
+    </div>
+
+    <details class="baseline">
+      <summary>Current Linear MCP <code>get_issue</code> response (baseline) &mdash; click to expand</summary>
+      <pre id="gi-baseline-pre"></pre>
+      <div class="stat-row" style="margin-top:8px;">
+        <span class="stats" id="gi-baseline-stats"></span>
+      </div>
+    </details>
+
+    <div class="grid" id="gi-grid"></div>
+  </section>
+
+  <!-- ============ LIST_ISSUES ============ -->
+  <section class="pane" id="pane-list_issues">
+    <h2 class="cmd">Per-row shape comparison &mdash; <code>lnr issue list</code></h2>
+    <p class="target">Open design question: tabular vs one-line-per-issue vs id-only, and what per-row shape the ticket asks to decide.</p>
+
+    <div class="controls">
+      <div class="group">
+        <span>--json means:</span>
+        <label><input type="radio" name="li-json-mode" value="lean" checked> lean array as JSON</label>
+        <label><input type="radio" name="li-json-mode" value="raw"> raw API JSON (current MCP shape)</label>
+      </div>
+    </div>
+
+    <details class="baseline">
+      <summary>Current Linear MCP <code>list_issues</code> response, 12 issues (baseline) &mdash; click to expand</summary>
+      <pre id="li-baseline-pre"></pre>
+      <div class="stat-row" style="margin-top:8px;">
+        <span class="stats" id="li-baseline-stats"></span>
+      </div>
+    </details>
+
+    <div class="grid" id="li-grid"></div>
+  </section>
+
+  <!-- ============ DESIGN QUESTIONS ============ -->
+  <section class="pane" id="pane-questions">
+    <div class="qblock">
+      <h3>1. What are the three tiers, and what does --json promise?</h3>
+      <p>Lean default / <code class="inline">--verbose</code> / <code class="inline">--json</code>. Flip the
+        &ldquo;--json means&rdquo; control on the other three tabs: <strong>raw API JSON</strong> re-exposes every
+        null and every echoed field the whole project exists to avoid; <strong>lean fields as JSON</strong> keeps
+        the token savings but is a different fidelity promise than &ldquo;the real API response, machine-readable.&rdquo;</p>
+      <p class="note">Watching both renderings side by side: raw is 40&ndash;60&times; heavier for save_issue with
+        no information a human or agent asked for. Lean-as-JSON reads like the natural third tier.</p>
+    </div>
+    <div class="qblock">
+      <h3>2. Are nulls omitted, or rendered?</h3>
+      <p>Toggle &ldquo;omit null/empty fields&rdquo; on the save_issue / get_issue tabs. Omitting is strictly
+        cheaper; the risk is a caller not knowing whether a field is absent because it's empty or because lean
+        mode dropped it.</p>
+      <p class="note">Candidate resolution: omit by default in lean and verbose; <code class="inline">--json</code>
+        (lean-fields mode) always renders every lean-tier key, using <code class="inline">null</code> explicitly,
+        since JSON output is the tier a script parses and cannot afford ambiguity.</p>
+    </div>
+    <div class="qblock">
+      <h3>3. Stable/parseable, or human prose?</h3>
+      <p>Toggle &ldquo;verbose style&rdquo; on the get_issue tab. <code class="inline">key: value</code> lines
+        are grep-able and diff-friendly; prose reads better cold but nothing should script against it.</p>
+      <p class="note">Candidate resolution: lean and verbose are explicitly human/agent-readable text, not a
+        contract &mdash; <code class="inline">--json</code> is the only tier meant to be parsed.</p>
+    </div>
+    <div class="qblock">
+      <h3>4. Does output shape depend on TTY, or only on flags?</h3>
+      <p>Not something a static comparison can render meaningfully &mdash; this is a behavioural choice, not a
+        rendering choice.</p>
+      <p class="note">Confirms charting's lean-toward-flags-only: an agent's non-interactive stdout must not
+        silently change shape depending on how it happens to be invoked. TTY-sniffing stays out of scope.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="note">
+  Prototype for lnr#4 &mdash; throwaway, not shipped. Real payloads captured from this user's own Claude Code
+  transcripts (Linear MCP tool results), one representative response per command.
+</footer>
+
+<script>
+const SAVE_ISSUE_RAW = "{\"id\":\"HF-78\",\"title\":\"How are skills evaluated today \u2014 prior art survey\",\"description\":\"## Question\\n\\nWhat is the current state of the art for **evaluating agent skills**, and what of it transfers to a marketplace of 11 skills plus 2 sub-agents?\\n\\nCover, weighted in this order:\\n\\n1. **Anthropic's own guidance.** The official `skill-creator` harness, dissected properly \u2014 read `/Users/tacio/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/skill-creator/`: the shape of `evals/evals.json`, how the `grader` subagent judges, what `scripts.aggregate_benchmark` computes, how many iterations it runs and why, and what the analyzer pass does. Then Anthropic's published documentation and engineering writing on skills, agent evals, and LLM-as-judge.\\n2. **Where it stops.** Precisely which of our three tiers it covers, and which of our constraints it violates \u2014 it evaluates one skill in isolation, so what breaks when 11 are loaded together?\\n3. **Outside prior art.** Established eval tooling (promptfoo, Braintrust, DeepEval, OpenAI Evals and similar), judged on one question only: could it host a triggering or behavioral eval of a Claude Code skill, and at what integration cost? Community write-ups on skill/tool-selection eval count; generic \\\"how to eval an LLM\\\" content does not.\\n\\nFor each candidate, record: what it measures, how a pass is judged, how non-determinism is handled, and what it would cost us to adopt.\\n\\n## Deliverable\\n\\nA findings document in the repo, per `/mattpocock-skills:research`. Favour primary sources over blog summaries; cite everything.\",\"priority\":{\"value\":2,\"name\":\"High\"},\"url\":\"https://linear.app/taciogt/issue/HF-78/how-are-skills-evaluated-today-prior-art-survey\",\"gitBranchName\":\"taciogt/hf-78-how-are-skills-evaluated-today-prior-art-survey\",\"createdAt\":\"2026-07-29T12:26:47.968Z\",\"updatedAt\":\"2026-07-29T12:26:47.968Z\",\"archivedAt\":null,\"completedAt\":null,\"startedAt\":null,\"canceledAt\":null,\"dueDate\":null,\"slaStartedAt\":null,\"slaMediumRiskAt\":null,\"slaHighRiskAt\":null,\"slaBreachesAt\":null,\"slaType\":\"all\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"labels\":[\"wayfinder:research\",\"AFK\"],\"attachments\":[],\"documents\":[],\"createdBy\":\"T\u00e1cio Tavares\",\"createdById\":\"b9058542-143d-410a-85c3-ebf49319908a\",\"project\":\"Skill Evals for ai-plugins\",\"projectId\":\"e0ee85ae-6b8e-4931-aa4c-d8602a767f07\",\"parentId\":\"HF-76\",\"team\":\"Home Finances\",\"teamId\":\"c64c6fd9-542f-4c23-9c10-018c6e6eac2f\"}";
+const GET_ISSUE_RAW = "{\"id\":\"HF-81\",\"title\":\"What counts as a pass for the triggering tier?\",\"description\":\"## Question\\n\\nGiven a query and an expected skill, **what makes it a pass**?\\n\\nTo decide:\\n\\n* **The assertion.** Exactly-this-skill-fired? This-skill-fired-among-others? A ranked expectation? And what is the verdict when *nothing* fires \u2014 is silence a pass for a should-not-fire query, or a distinct third outcome?\\n* **Collision, as a first-class case.** The map fixes the whole marketplace as the unit, so we need query sets that deliberately probe the contested boundaries: `review` vs `skill-review` vs mattpocock's `code-review`; `craft/find-docs` vs the user's global context7 rule; `validate` vs `fix-ci`. Is \\\"the wrong sibling fired\\\" a different, louder failure than \\\"nothing fired\\\"?\\n* **Guarded skills.** `fix-ci`, `plan-issue` and `ship` carry `disable-model-invocation: true`. The model firing them is a **correctness bug**, not a score. Do these get an inviolable assertion separate from the pass rate?\\n* **The internal skill.** `task-refinement` is `user-invocable: false` and only ever dispatched by `implement` / `plan-issue`. What does a triggering eval even mean for it?\\n* **Non-determinism.** Single run, or N iterations with pass-rate \u00b1 stddev the way `skill-creator` does it? What N, and what threshold counts as green \u2014 100%, 90%, \\\"no regression against the recorded baseline\\\"?\\n* **Fixture size.** Roughly how many should-fire and should-not-fire queries per skill, and does that scale with how contested the skill is?\\n\\n## Blocked by\\n\\nThe observation channel and the environment. What we *can* assert is bounded by what a headless run actually exposes, and by how cleanly we can control what else is loaded.\",\"priority\":{\"value\":2,\"name\":\"High\"},\"url\":\"https://linear.app/taciogt/issue/HF-81/what-counts-as-a-pass-for-the-triggering-tier\",\"gitBranchName\":\"taciogt/hf-81-what-counts-as-a-pass-for-the-triggering-tier\",\"createdAt\":\"2026-07-29T12:27:16.437Z\",\"updatedAt\":\"2026-07-29T12:28:13.578Z\",\"archivedAt\":null,\"completedAt\":null,\"startedAt\":null,\"canceledAt\":null,\"dueDate\":null,\"slaStartedAt\":null,\"slaMediumRiskAt\":null,\"slaHighRiskAt\":null,\"slaBreachesAt\":null,\"slaType\":\"all\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"labels\":[\"wayfinder:grilling\",\"HITL\"],\"attachments\":[],\"documents\":[],\"stateHistory\":[{\"state\":{\"id\":\"3e6ef653-5dff-448f-81d2-6d90fd625be4\",\"name\":\"Todo\",\"type\":\"unstarted\"},\"startedAt\":\"2026-07-29T12:27:16.437Z\",\"endedAt\":null}],\"createdBy\":\"T\u00e1cio Tavares\",\"createdById\":\"b9058542-143d-410a-85c3-ebf49319908a\",\"project\":\"Skill Evals for ai-plugins\",\"projectId\":\"e0ee85ae-6b8e-4931-aa4c-d8602a767f07\",\"parentId\":\"HF-76\",\"team\":\"Home Finances\",\"teamId\":\"c64c6fd9-542f-4c23-9c10-018c6e6eac2f\",\"relations\":{\"blocks\":[{\"id\":\"HF-86\",\"title\":\"Write the eval strategy spec\"},{\"id\":\"HF-85\",\"title\":\"What's the cost and run-shape budget?\"},{\"id\":\"HF-84\",\"title\":\"How do sub-agents get dispatch-evaluated and graded?\"}],\"blockedBy\":[{\"id\":\"HF-79\",\"title\":\"How do we build an ephemeral environment with both plugins loaded?\"},{\"id\":\"HF-77\",\"title\":\"Can a headless Claude run tell us which skill fired?\"}],\"relatedTo\":[],\"duplicateOf\":null}}";
+const LIST_ISSUES_RAW = "{\"issues\":[{\"id\":\"HF-79\",\"title\":\"How do we build an ephemeral environment with both plugins loaded?\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":2,\"name\":\"High\"},\"labels\":[\"wayfinder:research\",\"AFK\"],\"updatedAt\":\"2026-07-29T16:11:49.654Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-78\",\"title\":\"How are skills evaluated today \u2014 prior art survey\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":2,\"name\":\"High\"},\"labels\":[\"wayfinder:research\",\"AFK\"],\"updatedAt\":\"2026-07-29T16:11:47.711Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-81\",\"title\":\"What counts as a pass for the triggering tier?\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":2,\"name\":\"High\"},\"labels\":[\"wayfinder:grilling\",\"HITL\"],\"updatedAt\":\"2026-07-29T16:11:36.694Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-86\",\"title\":\"Write the eval strategy spec\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":4,\"name\":\"Low\"},\"labels\":[\"wayfinder:task\",\"HITL\"],\"updatedAt\":\"2026-07-29T12:28:26.178Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-85\",\"title\":\"What's the cost and run-shape budget?\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":3,\"name\":\"Medium\"},\"labels\":[\"wayfinder:grilling\",\"HITL\"],\"updatedAt\":\"2026-07-29T12:28:22.637Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-84\",\"title\":\"How do sub-agents get dispatch-evaluated and graded?\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":3,\"name\":\"Medium\"},\"labels\":[\"wayfinder:grilling\",\"HITL\"],\"updatedAt\":\"2026-07-29T12:28:19.565Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-83\",\"title\":\"How do we eval skills that push, commit, or create issues?\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":3,\"name\":\"Medium\"},\"labels\":[\"wayfinder:grilling\",\"HITL\"],\"updatedAt\":\"2026-07-29T12:28:17.623Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-82\",\"title\":\"What does a behavioral eval fixture look like?\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":2,\"name\":\"High\"},\"labels\":[\"wayfinder:grilling\",\"HITL\"],\"updatedAt\":\"2026-07-29T12:28:15.412Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-80\",\"title\":\"What does tier 0 lint check, and what enforces it?\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":2,\"name\":\"High\"},\"labels\":[\"wayfinder:grilling\",\"HITL\"],\"updatedAt\":\"2026-07-29T12:27:06.382Z\",\"project\":\"Skill Evals for ai-plugins\"},{\"id\":\"HF-2\",\"title\":\"Connect your tools\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":0,\"name\":\"No priority\"},\"labels\":[],\"updatedAt\":\"2026-06-11T20:47:27.384Z\"},{\"id\":\"HF-1\",\"title\":\"Get familiar with Linear\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":0,\"name\":\"No priority\"},\"labels\":[],\"updatedAt\":\"2026-06-10T12:47:06.462Z\"},{\"id\":\"HF-4\",\"title\":\"Set up your teams\",\"status\":\"Todo\",\"statusType\":\"unstarted\",\"priority\":{\"value\":0,\"name\":\"No priority\"},\"labels\":[],\"updatedAt\":\"2026-06-10T12:47:06.462Z\"}],\"hasNextPage\":false}";
+
+function approxTokens(str) {
+  return Math.max(1, Math.round(str.length / 4));
+}
+
+function statLine(str, targetTokens) {
+  const chars = str.length;
+  const tokens = approxTokens(str);
+  let badge = '';
+  if (targetTokens != null) {
+    const pass = tokens <= targetTokens;
+    badge = `<span class="badge ${pass ? 'good' : 'bad'}">${pass ? 'under target' : 'over target'}</span>`;
+  }
+  return { html: `<span class="stats">${chars.toLocaleString()} chars &middot; ≈${tokens.toLocaleString()} tokens</span>${badge}`, tokens };
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+function card(title, desc, text, targetTokens) {
+  const { html } = statLine(text, targetTokens);
+  return `<div class="card">
+    <div class="title">${esc(title)}</div>
+    <div class="desc">${esc(desc)}</div>
+    <pre>${esc(text)}</pre>
+    <div class="stat-row">${html}</div>
+  </div>`;
+}
+
+// ---------- save_issue ----------
+function renderSaveIssue() {
+  const obj = JSON.parse(SAVE_ISSUE_RAW);
+  const jsonMode = document.querySelector('input[name="si-json-mode"]:checked').value;
+  const omitNulls = document.getElementById('si-omit-nulls').checked;
+
+  document.getElementById('si-baseline-pre').textContent = SAVE_ISSUE_RAW;
+  document.getElementById('si-baseline-stats').innerHTML = statLine(SAVE_ISSUE_RAW, null).html;
+
+  const idUrl = `${obj.id} ${obj.url}`;
+  const idUrlTitle = `${obj.id}  ${obj.title}\n${obj.url}`;
+
+  const verboseFields = [
+    ['id', obj.id],
+    ['title', obj.title],
+    ['status', obj.status],
+    ['priority', obj.priority && obj.priority.name],
+    ['updatedAt', obj.updatedAt],
+    ['dueDate', obj.dueDate],
+    ['url', obj.url],
+  ];
+  const verboseLines = verboseFields
+    .filter(([k, v]) => !omitNulls || (v !== null && v !== undefined && v !== ''))
+    .map(([k, v]) => `${k}: ${omitNulls ? v : (v === null || v === undefined || v === '' ? '—' : v)}`);
+  const verbose = verboseLines.join('\n');
+
+  const leanJson = JSON.stringify({ id: obj.id, url: obj.url, title: obj.title }, null, 2);
+  const jsonOut = jsonMode === 'raw' ? JSON.stringify(obj, null, 2) : leanJson;
+
+  const cards = [
+    card('Lean (candidate A) — id + url', 'Ticket’s stated target shape: nothing but the identifier and the link.', idUrl, 50),
+    card('Lean (candidate B) — id + url + title', 'One line heavier; title alone materially helps a human scrolling a terminal.', idUrlTitle, 50),
+    card('--verbose', 'Adds status/priority/dates. Nulls ' + (omitNulls ? 'omitted' : 'rendered as —') + ' per the toggle above.', verbose, null),
+    card(`--json (${jsonMode === 'raw' ? 'raw API' : 'lean fields'})`, jsonMode === 'raw'
+      ? 'Full 29-field API shape — every null, every echoed description character, machine-parseable.'
+      : 'Only the lean-tier keys, as JSON — same fields as candidate A, structured for scripts.', jsonOut, null),
+  ];
+  document.getElementById('si-grid').innerHTML = cards.join('');
+}
+
+// ---------- get_issue ----------
+function renderGetIssue() {
+  const obj = JSON.parse(GET_ISSUE_RAW);
+  const jsonMode = document.querySelector('input[name="gi-json-mode"]:checked').value;
+  const omitNulls = document.getElementById('gi-omit-nulls').checked;
+  const style = document.querySelector('input[name="gi-style"]:checked').value;
+
+  document.getElementById('gi-baseline-pre').textContent = GET_ISSUE_RAW;
+  document.getElementById('gi-baseline-stats').innerHTML = statLine(GET_ISSUE_RAW, null).html;
+
+  const blockedBy = (obj.relations && obj.relations.blockedBy) || [];
+  const blocks = (obj.relations && obj.relations.blocks) || [];
+  const labels = obj.labels || [];
+
+  function leanCore(descLine) {
+    const fields = [
+      ['id', obj.id],
+      ['title', obj.title],
+      ['status', obj.status],
+      ['priority', obj.priority && obj.priority.name],
+      ['labels', labels.length ? labels.join(', ') : null],
+      ['blockedBy', blockedBy.length ? blockedBy.map(b => b.id).join(', ') : null],
+      ['url', obj.url],
+    ];
+    const lines = fields
+      .filter(([k, v]) => !omitNulls || (v !== null && v !== undefined && v !== ''))
+      .map(([k, v]) => {
+        if (style === 'prose') return null; // handled separately
+        return `${k}: ${omitNulls ? v : (v === null || v === undefined || v === '' ? '—' : v)}`;
+      });
+    if (style === 'prose') {
+      let s = `${obj.title} (${obj.id}, ${obj.status}${obj.priority ? ', ' + obj.priority.name + ' priority' : ''}).`;
+      if (labels.length) s += ` Labelled ${labels.join(', ')}.`;
+      if (blockedBy.length) s += ` Blocked by ${blockedBy.map(b => b.id).join(', ')}.`;
+      s += ` ${obj.url}`;
+      if (descLine) s += `\n\n${descLine}`;
+      return s;
+    }
+    let out = lines.join('\n');
+    if (descLine) out += `\ndescription: ${descLine}`;
+    return out;
+  }
+
+  const noDesc = leanCore(null);
+  const fullDesc = leanCore(obj.description);
+  const truncated = leanCore(obj.description.length > 200 ? obj.description.slice(0, 200).trim() + '… (truncated, use --verbose)' : obj.description);
+
+  const cards = [
+    card('Lean A — no description', 'Metadata only. Cheapest; loses the question/body entirely.', noDesc, 250),
+    card('Lean B — full description', 'Same metadata, full description appended. Blows the budget on any real ticket.', fullDesc, 250),
+    card('Lean C — description truncated', 'First ~200 chars + pointer to --verbose. Keeps a taste without the cost.', truncated, 250),
+  ];
+  document.getElementById('gi-grid').innerHTML = cards.join('');
+
+  // --json card appended separately (not subject to the 250-token target)
+  const leanJsonObj = {
+    id: obj.id, title: obj.title, status: obj.status,
+    priority: obj.priority && obj.priority.name,
+    labels, blockedBy: blockedBy.map(b => b.id), url: obj.url,
+  };
+  const jsonOut = jsonMode === 'raw' ? JSON.stringify(obj, null, 2) : JSON.stringify(leanJsonObj, null, 2);
+  document.getElementById('gi-grid').insertAdjacentHTML('beforeend',
+    card(`--json (${jsonMode === 'raw' ? 'raw API' : 'lean fields'})`, jsonMode === 'raw'
+      ? 'Full API shape incl. team/project internal ids, state history, relations by full title.'
+      : 'Lean-tier keys as JSON, no description — add --verbose --json for the full body.', jsonOut, null));
+}
+
+// ---------- list_issues ----------
+function renderListIssues() {
+  const obj = JSON.parse(LIST_ISSUES_RAW);
+  const jsonMode = document.querySelector('input[name="li-json-mode"]:checked').value;
+  const issues = obj.issues;
+
+  document.getElementById('li-baseline-pre').textContent = LIST_ISSUES_RAW;
+  document.getElementById('li-baseline-stats').innerHTML = statLine(LIST_ISSUES_RAW, null).html;
+
+  const idOnly = issues.map(i => i.id).join('  ');
+
+  const tabular = issues.map(i => {
+    const pri = (i.priority && i.priority.name || 'None').padEnd(10);
+    const status = i.status.padEnd(9);
+    return `${i.id.padEnd(7)}${pri}${status}${i.title}`;
+  }).join('\n');
+  const tabularHeader = `${'ID'.padEnd(7)}${'PRIORITY'.padEnd(10)}${'STATUS'.padEnd(9)}TITLE\n`;
+
+  const oneLine = issues.map(i =>
+    `${i.id}  ${(i.priority && i.priority.name) || 'None'} · ${i.status} — ${i.title}`
+  ).join('\n');
+
+  const cards = [
+    card('Variant A — id-only', 'Cheapest possible row; matches a narrower real MCP response seen for filtered queries. Needs a follow-up get_issue per row for anything else.', idOnly, null),
+    card('Variant B — tabular', 'Fixed-width columns, id/priority/status/title. Scans well for 10+ rows, wraps badly in a narrow terminal.', tabularHeader + tabular, null),
+    card('Variant C — one-line prose', 'Same fields, sentence-shaped. Reads better one at a time, harder to scan as a list.', oneLine, null),
+  ];
+  document.getElementById('li-grid').innerHTML = cards.join('');
+
+  const leanArr = issues.map(i => ({ id: i.id, title: i.title, status: i.status, priority: i.priority && i.priority.name }));
+  const jsonOut = jsonMode === 'raw' ? JSON.stringify(obj, null, 2) : JSON.stringify(leanArr, null, 2);
+  document.getElementById('li-grid').insertAdjacentHTML('beforeend',
+    card(`--json (${jsonMode === 'raw' ? 'raw API' : 'lean fields'})`, jsonMode === 'raw'
+      ? 'Full nested issue objects per row — the current MCP shape, descriptions truncated by the API itself.'
+      : 'Lean per-row objects as an array — no descriptions, no truncation markers.', jsonOut, null));
+}
+
+function renderAll() {
+  renderSaveIssue();
+  renderGetIssue();
+  renderListIssues();
+}
+
+document.querySelectorAll('.controls input').forEach(el => el.addEventListener('change', renderAll));
+
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('section.pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pane-' + btn.dataset.pane).classList.add('active');
+  });
+});
+
+renderAll();
+</script>
+</body>
+</html>
