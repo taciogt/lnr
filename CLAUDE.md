@@ -63,6 +63,7 @@ Do not relitigate these without a reason; each links to the ticket holding its r
 | Auth | OAuth authorization-code + PKCE (S256), loopback redirect, shipped non-secret `client_id`; `LINEAR_API_KEY` fallback ([#2](https://github.com/taciogt/lnr/issues/2)) |
 | Distribution | Personal Homebrew tap, GoReleaser `homebrew_casks` ([#6](https://github.com/taciogt/lnr/issues/6)) |
 | Credentials | macOS Keychain, keyed by **workspace ID** even though only one is supported; reached via `/usr/bin/security`, *not* the native `SecItem*` API ([#7](https://github.com/taciogt/lnr/issues/7)) |
+| Companion skill | Ships as a plugin from **this repo's own marketplace**; carries **no** command reference — `lnr --help` is rich by design and is the reference. Kept true by a script-only CI check, not codegen ([#8](https://github.com/taciogt/lnr/issues/8)) |
 | Agent contract | 7 behaviour-keyed exit codes; stdout is payload-only and empty on failure; never prompts; no internal retry ([#7](https://github.com/taciogt/lnr/issues/7)) |
 | Out of scope | Multi-workspace/profiles (one account per machine); reimplementing the 53 unused MCP tools; non-macOS distribution |
 
