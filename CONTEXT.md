@@ -108,3 +108,30 @@ A tag applied to an issue for categorization, independent of workflow status.
 A threaded note attached to an issue. Linear's API lets a comment attach to other kinds of records
 too (a project, an initiative, a document) — `lnr`'s comment noun does not yet cover those; each is
 tracked as its own open question rather than assumed.
+
+**Companion skill**:
+The Claude Code skill shipped as a plugin from this repo's own marketplace. It is an *accelerator*,
+never a dependency: `lnr` stays fully navigable through its `--help` tree with no skill installed.
+It therefore carries only what `--help` structurally cannot — which commands exist at all,
+cross-command house rules, and **recipes** — and never duplicates a command's flags. See
+[ADR-0005](docs/adr/0005-the-companion-skill-never-duplicates-help.md).
+_Avoid_: Docs, reference files (v1 ships none — the `--help` tree is the reference).
+
+**Setup skill**:
+The plugin's second skill, marked `disable-model-invocation: true` so only a human can invoke it.
+Its one job is writing the recommended `lnr` permissions into the user's own settings — the
+durable grant a **companion skill**'s turn-scoped `allowed-tools` cannot give. See
+[ADR-0007](docs/adr/0007-the-pre-approval-allow-list-omits-lnr-api.md).
+
+**Recipe**:
+A short command sequence in the **companion skill**'s body. A recipe earns its place *only* if the
+task requires a call the **caller** would not know to make — a flag whose value must be resolved
+first, like a **status** name that is per-**team**. Anything an agent could reach by reading
+`--help` is not a recipe, and worked examples generally are not either.
+_Avoid_: Example, cookbook (both invite the unbounded set this rule exists to exclude).
+
+**Escape hatch**:
+`lnr api '<graphql>'`, the raw passthrough that lets the 22-command surface stay at 22 by absorbing
+every deferred operation (delete on any noun, cycles, documents, comment resolve/unresolve). The
+one command where the **tier** rules do not apply: it returns Linear's response as-is, because the
+caller explicitly asked for raw.
