@@ -173,3 +173,7 @@ gh api repos/taciogt/lnr/issues \
 `gh` for the auth flow and the `gh api` escape hatch, `kubectl` and `docker` for noun-verb
 grammar, and Linear's own [GraphQL API](https://linear.app/developers/graphql) — which is public,
 introspectable without a token, and 94% documented at the schema level.
+
+## License
+
+[MIT](LICENSE) — one licence for the whole repo: the future binary, the companion skill, and the spec prose.
