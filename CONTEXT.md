@@ -105,9 +105,12 @@ in favor of the shorter term).
 A tag applied to an issue for categorization, independent of workflow status.
 
 **Comment**:
-A threaded note attached to an issue. Linear's API lets a comment attach to other kinds of records
-too (a project, an initiative, a document) — `lnr`'s comment noun does not yet cover those; each is
-tracked as its own open question rather than assumed.
+A threaded note attached to a **parent**: an issue or a project, exactly one. Linear's API lets a
+comment attach to other kinds of records too (a project update post, an initiative, a document) —
+`lnr`'s comment noun does not cover those, because none of them is an `lnr` noun a caller could
+reference.
+_Avoid_: Treating a reply under a project update post as a project comment — it is a different
+parent, reachable only through the **escape hatch**.
 
 **Companion skill**:
 The Claude Code skill shipped as a plugin from this repo's own marketplace. It is an *accelerator*,
