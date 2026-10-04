@@ -67,6 +67,7 @@ Do not relitigate these without a reason; each links to the ticket holding its r
 | Credentials | macOS Keychain, keyed by **workspace ID** even though only one is supported; reached via `/usr/bin/security`, *not* the native `SecItem*` API ([#7](https://github.com/taciogt/lnr/issues/7)) |
 | Companion skill | Ships as a plugin from **this repo's own marketplace**; carries **no** command reference — `lnr --help` is rich by design and is the reference. Kept true by a script-only CI check, not codegen ([#8](https://github.com/taciogt/lnr/issues/8)) |
 | Agent contract | 7 behaviour-keyed exit codes; stdout is payload-only and empty on failure; never prompts; no internal retry ([#7](https://github.com/taciogt/lnr/issues/7)) |
+| Testing | Fake GraphQL server at merge, live smoke suite before release, fixtures recorded only from a throwaway workspace. Lean output asserted by golden files, a character budget and a no-echo property; contract proven black-box against the built binary. Merges on Ubuntu; Keychain tests on macOS at release. No coverage threshold ([#16](https://github.com/taciogt/lnr/issues/16)) |
 | Out of scope | Multi-workspace/profiles (one account per machine); reimplementing the 53 unused MCP tools; non-macOS distribution; initiatives, documents and cycles as nouns, and comments on them — all reachable only via `lnr api` ([#14](https://github.com/taciogt/lnr/issues/14), [#15](https://github.com/taciogt/lnr/issues/15)) |
 
 ## Established facts — read before re-deriving
