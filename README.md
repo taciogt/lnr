@@ -102,7 +102,7 @@ Each links to the ticket holding the full reasoning.
 
 | decision | outcome |
 |---|---|
-| [Auth](https://github.com/taciogt/lnr/issues/2) | OAuth authorization-code + PKCE (S256) with a loopback redirect, shipping a hard-coded non-secret `client_id` — a `gh auth login`-style browser flow, no copy-paste of API keys. `LINEAR_API_KEY` as the documented fallback. That one shipped `client_id` authorizes against *any* workspace is assumed but not yet verified — [deferred](https://github.com/taciogt/lnr/issues/12) until a first usable build exists. |
+| [Auth](https://github.com/taciogt/lnr/issues/2) | OAuth authorization-code + PKCE (S256) with a loopback redirect, shipping a hard-coded non-secret `client_id` — a `gh auth login`-style browser flow, no copy-paste of API keys. `LINEAR_API_KEY` as the documented fallback. That one shipped `client_id` authorizes against *any* workspace is assumed but not yet verified — [deferred](https://linear.app/taciogt/issue/HF-110) until v0 is usable. |
 | [API client](https://github.com/taciogt/lnr/issues/3) | Hand-written, not generated. Drift guarded by a 28-line CI check validating operation strings against a vendored schema. |
 | Language | Go. Single static binary, negligible startup. |
 | Output | Lean by default; `--verbose`; `--json`. Never echo input on writes. |

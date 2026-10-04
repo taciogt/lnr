@@ -16,7 +16,7 @@ findings under `.scratch/lnr-v1-spec/research/`.
 
 GitHub Issues is the tracker of record for the **spec** (recorded in `docs/agents/issue-tracker.md`,
 which carries the full `gh` command vocabulary these skills expect). **Implementation** is tracked
-in Linear via the Linear MCP, and via `lnr` itself once v0 is usable. The handoff lives in
+in the Linear [`lnr` project](https://linear.app/taciogt/project/lnr-6b25dcc7130a) via the Linear MCP, and via `lnr` itself once v0 is usable. The handoff lives in
 [Assemble the locked v1 spec document](https://github.com/taciogt/lnr/issues/19).
 
 - **Map**: [#1](https://github.com/taciogt/lnr/issues/1), labelled `wayfinder:map`. Holds the
@@ -62,7 +62,7 @@ Do not relitigate these without a reason; each links to the ticket holding its r
 | Surface | 22 noun-verb commands (full `create`/`update`/`get`/`list` CRUD on `issue`/`project`/`milestone`/`comment`/`label`, read-only `team list`/`status list`) + a raw `lnr api '<graphql>'` passthrough ([#5](https://github.com/taciogt/lnr/issues/5)) |
 | Output | Lean by default, `--verbose`, `--json`. **Never echo input back on writes.** Tiers govern success only — errors are always full |
 | API client | Hand-written, *not* generated ([#3](https://github.com/taciogt/lnr/issues/3)) |
-| Auth | OAuth authorization-code + PKCE (S256), loopback redirect, shipped non-secret `client_id`; `LINEAR_API_KEY` fallback ([#2](https://github.com/taciogt/lnr/issues/2)). Cross-workspace `client_id` unverified — deferred until a first usable build ([#12](https://github.com/taciogt/lnr/issues/12)) |
+| Auth | OAuth authorization-code + PKCE (S256), loopback redirect, shipped non-secret `client_id`; `LINEAR_API_KEY` fallback ([#2](https://github.com/taciogt/lnr/issues/2)). Cross-workspace `client_id` unverified — deferred until v0 is usable ([HF-110](https://linear.app/taciogt/issue/HF-110), moved from [#12](https://github.com/taciogt/lnr/issues/12)) |
 | Distribution | Personal Homebrew tap, GoReleaser `homebrew_casks` ([#6](https://github.com/taciogt/lnr/issues/6)) |
 | Credentials | macOS Keychain, keyed by **workspace ID** even though only one is supported; reached via `/usr/bin/security`, *not* the native `SecItem*` API ([#7](https://github.com/taciogt/lnr/issues/7)) |
 | Companion skill | Ships as a plugin from **this repo's own marketplace**; carries **no** command reference — `lnr --help` is rich by design and is the reference. Kept true by a script-only CI check, not codegen ([#8](https://github.com/taciogt/lnr/issues/8)) |

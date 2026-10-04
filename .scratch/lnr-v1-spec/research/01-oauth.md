@@ -309,7 +309,7 @@ deleted; it is an unauthorized, credential-less client id and holds no access to
   #10: no — Availability shows "public available" immediately, no pending-review state.**
 - **New, from #10:** whether the same shipped `client_id` authorizes unmodified against a
   *different* Linear workspace — the actual precondition for shipping one non-secret `client_id`
-  to every `lnr` user. Tracked in #12, **deferred until a first usable build of `lnr` exists** —
+  to every `lnr` user. Was #12; now [HF-110](https://linear.app/taciogt/issue/HF-110) in Linear, **deferred until v0 is usable** —
   the check is cheapest run as a real `lnr auth login` against a second workspace.
 
 ## Method note
