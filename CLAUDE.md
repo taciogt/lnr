@@ -14,8 +14,10 @@ findings under `.scratch/lnr-v1-spec/research/`.
 
 ## Where the work is tracked
 
-GitHub Issues is the tracker of record (recorded in `docs/agents/issue-tracker.md`, which carries
-the full `gh` command vocabulary these skills expect).
+GitHub Issues is the tracker of record for the **spec** (recorded in `docs/agents/issue-tracker.md`,
+which carries the full `gh` command vocabulary these skills expect). **Implementation** is tracked
+in Linear via the Linear MCP, and via `lnr` itself once v0 is usable. The handoff lives in
+[Assemble the locked v1 spec document](https://github.com/taciogt/lnr/issues/19).
 
 - **Map**: [#1](https://github.com/taciogt/lnr/issues/1), labelled `wayfinder:map`. Holds the
   destination, standing constraints, baseline measurements, Decisions-so-far, fog, and out-of-scope.

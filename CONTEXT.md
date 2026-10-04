@@ -91,7 +91,7 @@ have no Linear-assigned short code the way issues do.
 A checkpoint within a single project. Despite belonging to exactly one project in Linear's own
 schema, `lnr` treats it as a top-level noun rather than a nested one — see
 [ADR-0001](docs/adr/0001-uniform-command-grammar-over-schema-shape.md).
-_Avoid_: Using "milestone" for a release phase of the `lnr` project itself — that's **v1**/**v2+**
+_Avoid_: Using "milestone" for a **release phase** of the `lnr` project itself — that's **v0**/**v1**/**v2+**
 (see the map, [#1](https://github.com/taciogt/lnr/issues/1)). The two used to collide in this
 repo's own prose; the phase sense was renamed away once the entity became a real noun.
 
@@ -138,3 +138,10 @@ _Avoid_: Example, cookbook (both invite the unbounded set this rule exists to ex
 every deferred operation (delete on any noun, cycles, documents, initiatives, comment resolve/unresolve). The
 one command where the **tier** rules do not apply: it returns Linear's response as-is, because the
 caller explicitly asked for raw.
+
+**Release phase**:
+A stage of `lnr`'s own delivery: **v0**, **v1** or **v2+**. **v1** is the surface the spec map
+locks. **v0** is the first usable subset of v1: enough for `lnr` to replace the Linear MCP in daily
+agent work, including tracking `lnr`'s own implementation. It never contains anything v1 lacks.
+**v2+** is anything past v1, which the spec map does not specify.
+_Avoid_: Milestone (a Linear noun), MVP, release (a single published version, not a phase).
