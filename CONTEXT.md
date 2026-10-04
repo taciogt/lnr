@@ -135,6 +135,6 @@ _Avoid_: Example, cookbook (both invite the unbounded set this rule exists to ex
 
 **Escape hatch**:
 `lnr api '<graphql>'`, the raw passthrough that lets the 22-command surface stay at 22 by absorbing
-every deferred operation (delete on any noun, cycles, documents, comment resolve/unresolve). The
+every deferred operation (delete on any noun, cycles, documents, initiatives, comment resolve/unresolve). The
 one command where the **tier** rules do not apply: it returns Linear's response as-is, because the
 caller explicitly asked for raw.

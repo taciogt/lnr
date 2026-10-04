@@ -102,12 +102,12 @@ Each links to the ticket holding the full reasoning.
 
 | decision | outcome |
 |---|---|
-| [Auth](https://github.com/taciogt/lnr/issues/2) | OAuth authorization-code + PKCE (S256) with a loopback redirect, shipping a hard-coded non-secret `client_id` — a `gh auth login`-style browser flow, no copy-paste of API keys. `LINEAR_API_KEY` as the documented fallback. |
+| [Auth](https://github.com/taciogt/lnr/issues/2) | OAuth authorization-code + PKCE (S256) with a loopback redirect, shipping a hard-coded non-secret `client_id` — a `gh auth login`-style browser flow, no copy-paste of API keys. `LINEAR_API_KEY` as the documented fallback. That one shipped `client_id` authorizes against *any* workspace is assumed but not yet verified — [deferred](https://github.com/taciogt/lnr/issues/12) until a first usable build exists. |
 | [API client](https://github.com/taciogt/lnr/issues/3) | Hand-written, not generated. Drift guarded by a 28-line CI check validating operation strings against a vendored schema. |
 | Language | Go. Single static binary, negligible startup. |
 | Output | Lean by default; `--verbose`; `--json`. Never echo input on writes. |
 | Multi-workspace | Out of scope — one account per machine. Storage is keyed by workspace ID for forward compatibility. |
-| Credential storage | macOS Keychain, with a documented file fallback for CI and headless use. |
+| [Credential storage](https://github.com/taciogt/lnr/issues/7) | macOS Keychain, keyed by workspace ID, reached via `/usr/bin/security` rather than the native API. No plaintext-file fallback: headless and CI hosts use `LINEAR_API_KEY`. |
 | [Distribution](https://github.com/taciogt/lnr/issues/6) | Personal Homebrew tap via GoReleaser `homebrew_casks` + an `xattr` post-install hook. No signing, notarization, or Apple Developer fee. homebrew-core is not eligible. |
 
 ### Two findings that overturned an assumption

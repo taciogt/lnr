@@ -60,12 +60,12 @@ Do not relitigate these without a reason; each links to the ticket holding its r
 | Surface | 22 noun-verb commands (full `create`/`update`/`get`/`list` CRUD on `issue`/`project`/`milestone`/`comment`/`label`, read-only `team list`/`status list`) + a raw `lnr api '<graphql>'` passthrough ([#5](https://github.com/taciogt/lnr/issues/5)) |
 | Output | Lean by default, `--verbose`, `--json`. **Never echo input back on writes.** Tiers govern success only — errors are always full |
 | API client | Hand-written, *not* generated ([#3](https://github.com/taciogt/lnr/issues/3)) |
-| Auth | OAuth authorization-code + PKCE (S256), loopback redirect, shipped non-secret `client_id`; `LINEAR_API_KEY` fallback ([#2](https://github.com/taciogt/lnr/issues/2)) |
+| Auth | OAuth authorization-code + PKCE (S256), loopback redirect, shipped non-secret `client_id`; `LINEAR_API_KEY` fallback ([#2](https://github.com/taciogt/lnr/issues/2)). Cross-workspace `client_id` unverified — deferred until a first usable build ([#12](https://github.com/taciogt/lnr/issues/12)) |
 | Distribution | Personal Homebrew tap, GoReleaser `homebrew_casks` ([#6](https://github.com/taciogt/lnr/issues/6)) |
 | Credentials | macOS Keychain, keyed by **workspace ID** even though only one is supported; reached via `/usr/bin/security`, *not* the native `SecItem*` API ([#7](https://github.com/taciogt/lnr/issues/7)) |
 | Companion skill | Ships as a plugin from **this repo's own marketplace**; carries **no** command reference — `lnr --help` is rich by design and is the reference. Kept true by a script-only CI check, not codegen ([#8](https://github.com/taciogt/lnr/issues/8)) |
 | Agent contract | 7 behaviour-keyed exit codes; stdout is payload-only and empty on failure; never prompts; no internal retry ([#7](https://github.com/taciogt/lnr/issues/7)) |
-| Out of scope | Multi-workspace/profiles (one account per machine); reimplementing the 53 unused MCP tools; non-macOS distribution |
+| Out of scope | Multi-workspace/profiles (one account per machine); reimplementing the 53 unused MCP tools; non-macOS distribution; initiatives, documents and cycles as nouns, and comments on them — all reachable only via `lnr api` ([#14](https://github.com/taciogt/lnr/issues/14), [#15](https://github.com/taciogt/lnr/issues/15)) |
 
 ## Established facts — read before re-deriving
 
