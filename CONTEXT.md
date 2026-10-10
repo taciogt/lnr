@@ -60,6 +60,9 @@ headless host. Stored in the macOS Keychain, keyed by workspace ID, reached via 
 rather than the native API — see
 [ADR-0004](docs/adr/0004-keychain-access-via-the-security-cli.md). `lnr` owns its whole lifecycle
 including refresh; a caller only learns a credential exists when there isn't a usable one.
+`LINEAR_API_KEY`, when set, always wins over a stored token and is never retried against the
+Keychain — see
+[ADR-0009](docs/adr/0009-one-credential-item-and-the-environment-credential-wins.md).
 
 **Issue**:
 Linear's core work item. The only noun addressable by a human-readable identifier as well as a
