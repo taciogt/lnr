@@ -136,8 +136,10 @@ _Avoid_: Example, cookbook (both invite the unbounded set this rule exists to ex
 **Escape hatch**:
 `lnr api '<graphql>'`, the raw passthrough that lets the 22-command surface stay at 22 by absorbing
 every deferred operation (delete on any noun, cycles, documents, initiatives, comment resolve/unresolve). The
-one command where the **tier** rules do not apply: it returns Linear's response as-is, because the
-caller explicitly asked for raw.
+one command where the **tier** rules do not apply: on success it returns Linear's response as-is,
+because the caller explicitly asked for raw. It still honours the **exit code** and **payload**
+contract on failure: any GraphQL `errors[]` yields a mapped exit code and an empty stdout — see
+[ADR-0008](docs/adr/0008-lnr-api-fails-closed-on-any-graphql-error.md).
 
 **Release phase**:
 A stage of `lnr`'s own delivery: **v0**, **v1** or **v2+**. **v1** is the surface the spec map
