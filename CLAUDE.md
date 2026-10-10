@@ -16,7 +16,7 @@ findings under `.scratch/lnr-v1-spec/research/`.
 
 GitHub Issues is the tracker of record for the **spec** (recorded in `docs/agents/issue-tracker.md`,
 which carries the full `gh` command vocabulary these skills expect). **Implementation** is tracked
-in the Linear [`lnr` project](https://linear.app/taciogt/project/lnr-6b25dcc7130a) via the Linear MCP, and via `lnr` itself once v0 is usable. The handoff lives in
+in the Linear [`lnr` project](https://linear.app/taciogt/project/lnr-6b25dcc7130a) via the Linear MCP, and via `lnr` itself once v0 is usable. The assembled spec is [`docs/spec.md`](docs/spec.md); the handoff lives in
 [Assemble the locked v1 spec document](https://github.com/taciogt/lnr/issues/19).
 
 - **Map**: [#1](https://github.com/taciogt/lnr/issues/1), labelled `wayfinder:map`. Holds the
