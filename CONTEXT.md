@@ -150,3 +150,9 @@ locks. **v0** is the first usable subset of v1: enough for `lnr` to replace the 
 agent work, including tracking `lnr`'s own implementation. It never contains anything v1 lacks.
 **v2+** is anything past v1, which the spec map does not specify.
 _Avoid_: Milestone (a Linear noun), MVP, release (a single published version, not a phase).
+
+**Release**:
+A single published version of `lnr`, identified by a `vX.Y.Z` tag. Binary and companion plugin
+share its number, and pushing the tag is what releases — see
+[ADR-0010](docs/adr/0010-one-version-and-a-tag-is-the-only-release-trigger.md).
+_Avoid_: Using it for a **release phase**.
