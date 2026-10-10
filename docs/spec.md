@@ -355,7 +355,7 @@ contains anything v1 lacks. **v1** is everything in this spec. **v2+** is not sp
 | `project` CRUD | [HF-105](https://linear.app/taciogt/issue/HF-105) | §2, §3 |
 | `milestone` CRUD | [HF-106](https://linear.app/taciogt/issue/HF-106) | §2, §3 |
 | `label` CRUD | [HF-107](https://linear.app/taciogt/issue/HF-107) | §2, §3 |
-| Remaining `comment` verbs, `--project`, `team list` | [HF-108](https://linear.app/taciogt/issue/HF-108) | §2, §3 |
+| Remaining `comment` verbs and `--project` (`team list` moved to the skeleton, per HF-97's plan) | [HF-108](https://linear.app/taciogt/issue/HF-108) | §2, §3 |
 | Companion plugin, marketplace, CI check | [HF-109](https://linear.app/taciogt/issue/HF-109) | §9 |
 | Cross-workspace `client_id` check | [HF-110](https://linear.app/taciogt/issue/HF-110) | §6 |
 | Skeleton A: Go module, Cobra root, exit-code table, Ubuntu gate (carries `--version`) | [HF-111](https://linear.app/taciogt/issue/HF-111) | §5, §11 |
