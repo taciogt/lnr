@@ -5,7 +5,7 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 ## Conventions
 
 - **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
-- **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
+- **Read an issue**: `gh issue view <number> --json title,state,body,comments,labels`. `--comments` and `--json` are mutually exclusive, so use `--json` with the `comments` field.
 - **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
 - **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
@@ -48,3 +48,5 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 ## Implementation tracking lives in Linear
 
 Everything above governs the **spec map** only. Implementation of `lnr` is tracked in **Linear**, in the [`lnr` project](https://linear.app/taciogt/project/lnr-6b25dcc7130a) (team *Home Finances*, project milestones **v0**/**v1**), through the Linear MCP until **v0** is usable and through `lnr` itself afterwards (dogfooding). See "Assemble the locked v1 spec document" ([#19](https://github.com/taciogt/lnr/issues/19)) for the handoff. A Linear issue waiting on a GitHub ticket carries a `Blocked by: <GitHub URL>` line at the top of its description, since cross-tracker blocking cannot be native.
+
+Linear MCP tool schemas are deferred: load a tool with `ToolSearch select:mcp__linear-server__<name>` before its first call. Edit a description with `save_issue`'s `patch` rather than resending it; every `save_issue` echoes the full description back.

@@ -54,8 +54,7 @@ settled by what the caller can *do* with an answer ([`CONTEXT.md`](../CONTEXT.md
 | Companion plugin, resident | **≤100 tokens**, both skills combined | [Companion skill](https://github.com/taciogt/lnr/issues/8) |
 | Companion skill, on invocation | ≤700 tokens | same |
 
-The README and map baseline still show an earlier ~150-token resident target; **≤100 supersedes
-it**.
+An earlier ~150-token resident target is superseded by **≤100**.
 
 ## 2. Command surface
 
@@ -342,23 +341,8 @@ through the Linear MCP until v0 is usable and through `lnr` afterwards.
 `get`/`list`, `comment create`, `status list`, `lnr api`, and a working `brew install`. v0 never
 contains anything v1 lacks. **v1** is everything in this spec. **v2+** is not specified.
 
-| Slice | Linear | Spec sections |
-|---|---|---|
-| Skeleton: command tree, client, exit codes, tiers, `lnr api`, schema check | [HF-97](https://linear.app/taciogt/issue/HF-97) | §2, §4, §5, §7, §10 |
-| Auth and credentials | [HF-98](https://linear.app/taciogt/issue/HF-98) | §6, §8 |
-| `issue get` / `issue list` | [HF-99](https://linear.app/taciogt/issue/HF-99) | §2, §3, §4 |
-| `issue create` / `issue update` | [HF-100](https://linear.app/taciogt/issue/HF-100) | §2, §3, §4 |
-| `comment create` | [HF-101](https://linear.app/taciogt/issue/HF-101) | §2, §4 |
-| `status list` | [HF-102](https://linear.app/taciogt/issue/HF-102) | §2, §3 |
-| Release pipeline | [HF-103](https://linear.app/taciogt/issue/HF-103) | §10, §11, §12 |
-| Gate: v0 is usable | [HF-104](https://linear.app/taciogt/issue/HF-104) | §13 |
-| `project` CRUD | [HF-105](https://linear.app/taciogt/issue/HF-105) | §2, §3 |
-| `milestone` CRUD | [HF-106](https://linear.app/taciogt/issue/HF-106) | §2, §3 |
-| `label` CRUD | [HF-107](https://linear.app/taciogt/issue/HF-107) | §2, §3 |
-| Remaining `comment` verbs and `--project` (`team list` moved to the skeleton, per HF-97's plan) | [HF-108](https://linear.app/taciogt/issue/HF-108) | §2, §3 |
-| Companion plugin, marketplace, CI check | [HF-109](https://linear.app/taciogt/issue/HF-109) | §9 |
-| Cross-workspace `client_id` check | [HF-110](https://linear.app/taciogt/issue/HF-110) | §6 |
-| Skeleton A: Go module, Cobra root, exit-code table, Ubuntu gate (carries `--version`) | [HF-111](https://linear.app/taciogt/issue/HF-111) | §5, §11 |
+The slices, their order and blocking edges live in the Linear project, which is the single record;
+each issue's "Spec:" line links the sections it implements.
 
 **Dogfooding.** After v0, `lnr` tracks its own implementation and its token usage is compared with
 the MCP's by the **same method as the README baseline** (transcript-derived response sizes per

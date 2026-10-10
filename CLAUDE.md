@@ -50,27 +50,13 @@ rather than assumed (full numbers in `README.md`):
 
 **Response savings beat schema savings roughly 25:1.** Judge every output decision in tokens
 against the per-call targets on the map: `save_issue` under ~50 tokens, `get_issue --lean` under
-~250, companion skill under ~150 resident.
+~250, companion plugin ≤100 resident.
 
 ## Decisions already locked
 
-Do not relitigate these without a reason; each links to the ticket holding its reasoning.
-
-| | |
-|---|---|
-| Language / name | Go; binary `lnr`; noun-verb grammar (`lnr issue create`) |
-| Surface | 22 noun-verb commands (full `create`/`update`/`get`/`list` CRUD on `issue`/`project`/`milestone`/`comment`/`label`, read-only `team list`/`status list`) + a raw `lnr api '<graphql>'` passthrough ([#5](https://github.com/taciogt/lnr/issues/5)) |
-| Output | Lean by default, `--verbose`, `--json`. **Never echo input back on writes.** Tiers govern success only — errors are always full |
-| API client | Hand-written, *not* generated ([#3](https://github.com/taciogt/lnr/issues/3)) |
-| Auth | OAuth authorization-code + PKCE (S256), loopback redirect, shipped non-secret `client_id`; `LINEAR_API_KEY` fallback ([#2](https://github.com/taciogt/lnr/issues/2)). Cross-workspace `client_id` unverified — deferred until v0 is usable ([HF-110](https://linear.app/taciogt/issue/HF-110), moved from [#12](https://github.com/taciogt/lnr/issues/12)) |
-| Distribution | Personal Homebrew tap, GoReleaser `homebrew_casks` ([#6](https://github.com/taciogt/lnr/issues/6)) |
-| Credentials | macOS Keychain, keyed by **workspace ID** even though only one is supported; reached via `/usr/bin/security`, *not* the native `SecItem*` API ([#7](https://github.com/taciogt/lnr/issues/7)) |
-| Companion skill | Ships as a plugin from **this repo's own marketplace**; carries **no** command reference — `lnr --help` is rich by design and is the reference. Kept true by a script-only CI check, not codegen ([#8](https://github.com/taciogt/lnr/issues/8)) |
-| Agent contract | 7 behaviour-keyed exit codes; stdout is payload-only and empty on failure; never prompts; no internal retry ([#7](https://github.com/taciogt/lnr/issues/7)) |
-| Testing | Fake GraphQL server at merge, live smoke suite before release, fixtures recorded only from a throwaway workspace. Lean output asserted by golden files, a character budget and a no-echo property; contract proven black-box against the built binary. Merges on Ubuntu; Keychain tests on macOS at release. No coverage threshold ([#16](https://github.com/taciogt/lnr/issues/16)) |
-| Settings | No config file in v1. Flags/env only: `--timeout`/`LNR_TIMEOUT`; test seams `LNR_API_URL` (https, or http on loopback) and `LNR_KEYCHAIN`, env-only and absent from `--help`; output tier is flag-only. At most one Keychain item (account = workspace ID); `LINEAR_API_KEY` beats it with no fallthrough, and exit `3` names the rejected source ([#17](https://github.com/taciogt/lnr/issues/17), [ADR-0009](docs/adr/0009-one-credential-item-and-the-environment-credential-wins.md)) |
-| Versioning / release | Semver covers command paths, flags, exit-code meanings and `--json` fields (an eighth exit code is major); lean/verbose text, error wording and `LNR_*` seams are not covered. Phase v0 = `0.x`, `1.0.0` = full v1 surface. `lnr --version` prints `lnr v1.0.3`; no update notice, no self-update. Binary and plugin share one version, pinned in `plugin.json`. A pushed `vX.Y.Z` tag is the only release trigger, pushed for now by a project-scoped `/release` skill ([#18](https://github.com/taciogt/lnr/issues/18), [ADR-0010](docs/adr/0010-one-version-and-a-tag-is-the-only-release-trigger.md)) |
-| Out of scope | Multi-workspace/profiles (one account per machine); reimplementing the 53 unused MCP tools; non-macOS distribution; initiatives, documents and cycles as nouns, and comments on them — all reachable only via `lnr api` ([#14](https://github.com/taciogt/lnr/issues/14), [#15](https://github.com/taciogt/lnr/issues/15)) |
+Do not relitigate these without a reason. [`docs/spec.md`](docs/spec.md) is the single record: each
+decision is stated once, with the ticket and ADR holding its reasoning
+([§16](docs/spec.md#16-where-each-decision-lives)). Questions it leaves open are on the map.
 
 ## Established facts — read before re-deriving
 

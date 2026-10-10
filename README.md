@@ -77,14 +77,14 @@ Per-call targets the design is held to:
 |---|---|
 | `save_issue` response | under ~50 tokens (identifier + URL) |
 | `get_issue --lean` | under ~250 tokens |
-| companion skill, always-resident cost | under ~150 tokens |
+| companion skill, always-resident cost | ≤100 tokens |
 
 **A small committed surface, plus an escape hatch.** Roughly 8 commands covering what actually
 gets used, and a raw `lnr api '<graphql>'` passthrough in the shape of `gh api`. That covers the
 other 53 tools without designing 53 commands — and, since the raw Linear GraphQL API is richer
 than the MCP's projection of it, potentially more than the MCP can reach.
 
-**Self-documenting, progressively.** A companion agent skill stays under ~150 tokens resident and
+**Self-documenting, progressively.** A companion agent skill stays ≤100 tokens resident and
 discloses detail progressively, sliced by task rather than by command. The CLI is the source of
 truth for its own documentation, so the two cannot drift.
 
