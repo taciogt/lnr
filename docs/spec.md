@@ -85,7 +85,7 @@ table (`lnr help exit-codes`). None of these four count towards the 22.
 | Flag | On | Meaning |
 |---|---|---|
 | `--team <KEY>` | `issue create` and other team-scoped commands | team key, resolved client-side; a raw UUID is also accepted |
-| `--with-comments` | `issue get` | fetch comments in the same request |
+| `--with-comments` | `issue get` | fetch every comment in the same request; bodies truncated in lean, full with `--verbose` (§4.1) |
 | `--project <name\|uuid>` | `milestone create`/`list` (required); `comment create`/`list` | the project |
 | `--issue <ref>` or `--project <name\|uuid>` | `comment create`/`list` | exactly one required; neither or both exits `2` |
 | `--project-id`, `--milestone-id`, `--label-id` | name-addressed nouns | UUID escape hatch that skips name resolution |
@@ -146,6 +146,53 @@ reference that matches nothing exits `4`. The two are different failures on purp
   project name).
 - **Tiers govern success only.** An error is full at every tier, so `--verbose` adds nothing to a
   failure. `--json` changes the encoding of an error, never its stream.
+
+### 4.1 Lean for the other nouns
+
+Decided in [What does lean contain for project, milestone, label, comment, team and
+status?](https://github.com/taciogt/lnr/issues/22). The rules above apply unchanged; this section
+fixes the fields.
+
+**Conventions.** People appear by display name, never UUID. Dates are `YYYY-MM-DD` (UTC), never
+relative and never with a time.
+
+**Writes** print `id` (the UUID) plus `url` when the type has one. `project` and `comment` print
+both; `milestone` and `label` print `id` only, because Linear gives them no `url`. Nothing is echoed.
+
+**`get --lean`** (nulls omitted):
+
+| Noun | Fields |
+|---|---|
+| `project` | name, status, lead, target date, teams (keys), url, full `description`. `content`, progress, health, start date, colour and icon are verbose-only |
+| `milestone` | name, project, status, target date, description truncated at ~200 characters |
+| `label` | name, team (omitted when workspace-wide), parent (when in a group), description |
+| `comment` | parent, author, date, `resolved` (only when resolved), full body |
+
+**`list` columns**, one row per record:
+
+| Noun | Columns |
+|---|---|
+| `project` | name, status, lead, target date |
+| `milestone` | name, status, target date (the project is already given by `--project`) |
+| `label` | name, team, parent |
+| `comment` | id (UUID), author, date, first line of the body truncated at ~100 characters |
+| `team` | key, name |
+| `status` | team (key, always present), name, type, ordered by position |
+
+`comment list` carries the UUID because `comment get` and `update` accept nothing else. `status`
+always carries `team`, so its shape never depends on whether `--team` was passed.
+
+**Comment bodies.** `comment get` prints the whole body. `comment list` and `issue get
+--with-comments` truncate it as above and point at `comment get`.
+
+**An issue with every comment in full** is `issue get --verbose --with-comments`: no new flag.
+`--with-comments` follows Linear's pagination until it runs out, at every tier, so the tier changes
+a body's length and never how many comments appear.
+
+**Size budget.** No per-noun figure. The ≤185-character write budget and the ≤925-character
+`get --lean` budget ([§10](#10-testing)) hold for every noun, and every `list` row has a ceiling of
+≤200 characters. Two exceptions, because the body is the payload: `comment get`, and the comments
+part of `issue get --with-comments` (the 925 covers the issue; each comment row keeps the 200).
 
 ## 5. Agent contract
 
@@ -370,8 +417,6 @@ made here; none blocks an implementation slice that does not touch it.
   port 8123 is busy. Touches §6 and the auth slice (HF-98).
 - [How do `list` commands filter and paginate?](https://github.com/taciogt/lnr/issues/21)
   Filter flags, default limit, and how truncation is signalled. Touches §4 and `issue list` (HF-99).
-- [What does lean contain for project, milestone, label, comment, team and status?](https://github.com/taciogt/lnr/issues/22)
-  Per-noun lean fields. Touches §4 and the v1 noun slices (HF-105 to HF-108).
 
 ## 16. Where each decision lives
 
@@ -379,7 +424,7 @@ made here; none blocks an implementation slice that does not touch it.
 |---|---|---|---|
 | OAuth design | [#2](https://github.com/taciogt/lnr/issues/2), [#10](https://github.com/taciogt/lnr/issues/10) | | §6 |
 | API client | [#3](https://github.com/taciogt/lnr/issues/3) | | §7 |
-| Lean output | [#4](https://github.com/taciogt/lnr/issues/4) | [0003](adr/0003-output-tiers-are-flag-only-and-json-is-not-raw.md) | §4 |
+| Lean output | [#4](https://github.com/taciogt/lnr/issues/4), [#22](https://github.com/taciogt/lnr/issues/22) | [0003](adr/0003-output-tiers-are-flag-only-and-json-is-not-raw.md) | §4 |
 | Command surface | [#5](https://github.com/taciogt/lnr/issues/5), [#13](https://github.com/taciogt/lnr/issues/13) | [0001](adr/0001-uniform-command-grammar-over-schema-shape.md), [0002](adr/0002-addressing-scheme-follows-api-capability-not-grammar.md), [0008](adr/0008-lnr-api-fails-closed-on-any-graphql-error.md) | §2, §3 |
 | Distribution | [#6](https://github.com/taciogt/lnr/issues/6) | | §12 |
 | Agent contract | [#7](https://github.com/taciogt/lnr/issues/7) | [0004](adr/0004-keychain-access-via-the-security-cli.md) | §5, §6 |
